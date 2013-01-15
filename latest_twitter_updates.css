@@ -1,0 +1,7 @@
+.widget_latest_twitter_widget{ text-align: left; padding: 15px 0px 0px; list-style:none; }
+.latest-twitter-tweet{ margin-top: 10px;font-weight: bold;font-size: 11px;font-family: Arial, Helvetica,sans-serif;}
+#latest-twitter-widget-icon, #latest-twitter-widget-pic{ float: left; border: 0px; margin-right: 5px; }
+#latest-twitter-follow-link{ text-align: right; text-transform: uppercase; letter-spacing: 1px; font: 7pt/15pt arial; }
+.latest-twitter-tweet-time{ font: 9pt/12pt arial; color: #999999; margin-bottom: 10px; }
+.twitter_link{color: #369;text-decoration: underline;outline: 0;font-weight: normal;}
+#latest-twitter-widget-icon2 {margin-left: 5px;}
