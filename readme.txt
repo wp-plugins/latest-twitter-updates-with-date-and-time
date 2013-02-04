@@ -41,5 +41,5 @@ At least once every 30 minutes.
 
 == Screenshots ==
 
-For Screenshots, Please visit: <p>http://www.opensourcetechnologies.com/wordpress-plugins/latest-twitter-updates-with-date-and-time.html</p>
+For Screenshots, please visit:<p>http://www.opensourcetechnologies.com/wordpress-plugins/latest-twitter-updates-with-date-and-time.html</p>
 
