@@ -4,11 +4,17 @@ Plugin Name: Latest twitter updates with date and time
 Plugin URI: http://www.opensourcetechnologies.com/
 Description: Creates a sidebar widget that displays the latest twitter updates for any user with date and time of tweet created.
 Author: opensourcetech
-Version: 1.0
+Version: 1.1
 Author URI: http://www.opensourcetechnologies.com/
 */
+ini_set('display_errors', 1);
+require_once('TwitterAPIExchange.php');
+
+
 
 class latest_twitter_widget extends WP_Widget {
+
+
 
 	function latest_twitter_widget() {
 		// widget actual processes
@@ -29,6 +35,10 @@ class latest_twitter_widget extends WP_Widget {
 		$showTweetTimeTF = $instance['showTweetTimeTF'];
 		$widgetTitle = stripslashes(quot($instance['widgetTitle']));
 		$includeRepliesTF = $instance['includeRepliesTF'];
+		$oauthAcessToken= get_option('oauthAcessToken');
+		$oauthAcessTokenSecret = get_option('oauthAcessTokenSecret');
+		$ConsumerKey = get_option('ConsumerKey');
+		$ConsumerKeySecret = get_option('ConsumerKeySecret');
 	?>
 		<p>
 			<label for="<?php echo $this->get_field_id('user'); ?>" style="line-height:35px;display:block;">Twitter username: @<input type="text" size="12" id="<?php echo $this->get_field_id('user'); ?>" name="<?php echo $this->get_field_name('user'); ?>" value="<?php echo $username;?>" /></label>
@@ -36,6 +46,8 @@ class latest_twitter_widget extends WP_Widget {
 			<label for="<?php echo $this->get_field_id('widgetTitle'); ?>" style="line-height:35px;display:block;">Title:<input type="text" id="<?php echo $this->get_field_id('widgetTitle'); ?>" size="16" name="<?php echo $this->get_field_name('widgetTitle'); ?>" value="<?php echo $widgetTitle; ?>" /></label>
 			<p><input type="checkbox" id="<?php echo $this->get_field_id('showTweetTimeTF'); ?>" value="1" name="<?php echo $this->get_field_name('showTweetTimeTF'); ?>"<?php if($showTweetTimeTF){ ?> checked="checked"<?php } ?>> <label for="<?php echo $this->get_field_id('showTweetTimeTF'); ?>">Show tweeted "date and time"</label></p>
 			<p><input type="checkbox" id="<?php echo $this->get_field_id('includeRepliesTF'); ?>" value="1" name="<?php echo $this->get_field_name('includeRepliesTF'); ?>"<?php if($includeRepliesTF){ ?> checked="checked"<?php } ?>> <label for="<?php echo $this->get_field_id('includeRepliesTF'); ?>">Include replies</label></p>
+			
+			
 		</p>
 <?php
 	}
@@ -46,6 +58,8 @@ class latest_twitter_widget extends WP_Widget {
 		$instance['user'] = esc_html($new_instance['user']);
 		$instance['count'] = esc_html($new_instance['count']);
 		$instance['widgetTitle'] = esc_html( $new_instance['widgetTitle']);
+	
+		
 		if( $new_instance['showTweetTimeTF']=="1"){
 			$instance['showTweetTimeTF'] = true;
 		} else{
@@ -68,18 +82,81 @@ class latest_twitter_widget extends WP_Widget {
 		$showTweetTimeTF = $instance['showTweetTimeTF'];
 		$title = $instance['widgetTitle'];
 		$includeRepliesTF = $instance['includeRepliesTF'];
+		$oauthAcessToken= get_option('oauthAcessToken');
+		$oauthAcessTokenSecret = get_option('oauthAcessTokenSecret');
+		$ConsumerKey = get_option('ConsumerKey');
+		$ConsumerKeySecret = get_option('ConsumerKeySecret');
 
-		$jsonFileName = "$username.json";
+		 $jsonFileName = "$username.json";
 		$jsonTempFileName = "$username.json.tmp";
-		$jsonURL = "http://api.twitter.com/1/statuses/user_timeline.json?screen_name=$username&include_entities=true";
+		//$jsonURL = "http://api.twitter.com/1/statuses/user_timeline.json?screen_name=$username&include_entities=true";
+	
+		//code added
 
+					/** Set access tokens here - see: https://dev.twitter.com/apps/ **/
+					$settings = array(
+					'oauth_access_token' => $oauthAcessToken,
+					'oauth_access_token_secret' => $oauthAcessTokenSecret,
+					'consumer_key' => $ConsumerKey,
+					'consumer_secret' => $ConsumerKeySecret
+					);
+
+
+					/** URL for REST request, see: https://dev.twitter.com/docs/api/1.1/ **/
+					$url = 'https://api.twitter.com/1.1/blocks/create.json';
+					$requestMethod = 'POST';
+
+					/** POST fields required by the URL above. See relevant docs as above **/
+					$postfields = array(
+					'screen_name' => 'usernameToBlock', 
+					'skip_status' => '1'
+					);
+
+					
+
+			//code end
+			
+			
 		//have we fetched twitter data in the last half hour?
-		if( $this->file_missing_or_old( $jsonFileName, .5 )){
+		if( $this->file_missing_or_old( $jsonFileName, .5 )){	
 			//get new data from twitter
-			$jsonData = $this->save_remote_file( $jsonURL, $jsonFileName );
+			/** Perform a POST request and echo the response **/
+					$twitter = new TwitterAPIExchange($settings);
+					 $twitter->buildOauth($url, $requestMethod)
+					->setPostfields($postfields)
+					->performRequest();
+
+					/** Perform a GET request and echo the response **/
+					/** Note: Set the GET field BEFORE calling buildOauth(); **/
+					$url = 'https://api.twitter.com/1.1/statuses/user_timeline.json';//https://api.twitter.com/1.1/followers/ids.json';
+					$getfield = '?screen_name='.$username.'&count='.$updateCount.'&include_entities=true';
+					$requestMethod = 'GET';
+					 $jsonURL=$url.$getfield;
+					$twitter = new TwitterAPIExchange($settings);
+					$jsonData= $twitter->setGetfield($getfield)
+					->buildOauth($url, $requestMethod)
+					->performRequest();
+					
+						 
 		} else{
 			//already have file, get the data out of it
-			$jsonData = $this->get_json_data_from_file( $jsonFileName );
+				/** Perform a POST request and echo the response **/
+					$twitter = new TwitterAPIExchange($settings);
+					 $twitter->buildOauth($url, $requestMethod)
+					->setPostfields($postfields)
+					->performRequest();
+
+					/** Perform a GET request and echo the response **/
+					/** Note: Set the GET field BEFORE calling buildOauth(); **/
+					$url = 'https://api.twitter.com/1.1/statuses/user_timeline.json';//https://api.twitter.com/1.1/followers/ids.json';
+					$getfield = '?screen_name='.$username.'&count='.$updateCount.'&include_entities=true';
+					$requestMethod = 'GET';
+					 $jsonURL=$url.$getfield;
+					$twitter = new TwitterAPIExchange($settings);
+					$jsonData= $twitter->setGetfield($getfield)
+					->buildOauth($url, $requestMethod)
+					->performRequest();
+			
 		}
 
 		// check for errors--rate limit or curl not installed
@@ -98,7 +175,7 @@ class latest_twitter_widget extends WP_Widget {
 				copy( dirname(__FILE__) . "/" . $jsonFileName, dirname(__FILE__) . "/" . $jsonTempFileName );
 			}
 		}
-
+	
 		if( $tweets = json_decode( $jsonData )){
 			$haveTwitterData = true;
 		} else{
@@ -108,19 +185,22 @@ class latest_twitter_widget extends WP_Widget {
 
 		// output the widget
 		$pluginURL = get_bloginfo('home')."/wp-content/plugins/latest-twitter-updates-with-date-and-time/";
-		$icon2 = $pluginURL . "twitter_logo.gif";
+		$icon2 = $pluginURL . "twitter_logo.png";
 		$title = empty($title) ? '&nbsp;' : apply_filters('widget_title', $title);
 		echo $before_widget;
 		if( !empty( $title ) && $title != "&nbsp;" ) { echo $before_title . $title . "<img id=\"latest-twitter-widget-icon2\" src=\"".$icon2."\" alt=\"t\"></a>" . $after_title ; };
 		if( $haveTwitterData ){
+			
 			$linkHTML = "<a href=\"http://twitter.com/".$username."\">";
 			$pluginURL = get_bloginfo('home')."/wp-content/plugins/latest-twitter-updates-with-date-and-time/";
 			$i=1;
+			
 			foreach( $tweets as $tweet ){
+			
 				//exit this loop if we have reached updateCount
-				if( $i > $updateCount ){ break; }
+				//if( $i > $updateCount ){ break; }
 				//skip this iteration of the loop if this is a reply and we are not showing replies
-				if( !$includeRepliesTF && strlen( $tweet->in_reply_to_screen_name )){ 		continue;	}
+				//if( !$includeRepliesTF && strlen( $tweet->in_reply_to_screen_name )){ 		continue;	}
 				echo "<div class=\"latest-twitter-tweet\">&quot;" . $this->fix_twitter_update( $tweet->text, $tweet->entities ) . "&quot;</div>";
 				if( $showTweetTimeTF ){
 					echo "<div class=\"latest-twitter-tweet-time\" id=\"latest-twitter-tweet-time-" . $i . "\">" . $this->twitter_time_ltw( $tweet->created_at) . "</div>";
@@ -168,8 +248,24 @@ function twitter_time_ltw($a) {
 			echo date('M j,Y  g:i A', $b);
 	}
 	
-	function save_remote_file( $url, $fileName ){
-		$response = wp_remote_get( $url );
+	function save_remote_file( $url, $fileName,$settings, $requestMethod,$getfield){
+		
+		$twitter = new TwitterAPIExchange($settings);
+		$response= $twitter->setGetfield($getfield)
+						 ->buildOauth($url, $requestMethod)
+						 ->performRequest();
+			if( $response!='' ){
+			$filePath = dirname(__FILE__) ."/". $fileName;
+			$fp = fopen( $filePath, "w");
+			fwrite( $fp, $response );
+			fclose( $fp );
+			//that worked out well
+			return $response;}
+			else{
+				//GET failed
+			return false;
+			}
+		/*$response = wp_remote_get( $response );
 		if( is_wp_error( $response ) || $response['response']['code'] != "200" ){
 			//GET failed
 			return false;
@@ -177,15 +273,15 @@ function twitter_time_ltw($a) {
 			//save the body of the response in $fileName
 			$filePath = dirname(__FILE__) ."/". $fileName;
 			$fp = fopen( $filePath, "w");
-			fwrite( $fp, $response['body'] );
+			fwrite( $fp, $response );
 			fclose( $fp );
 			//that worked out well
-			return $response['body'];
-		}
+			return $response;
+		}*/
 	}
 
 	function file_missing_or_old( $fileName, $ageInHours ){
-		$fileName = dirname(__FILE__) ."/". $fileName;
+		 $fileName = dirname(__FILE__) ."/". $fileName;
 		if( !file_exists( $fileName )){
 			return true;
 		} else{
@@ -225,5 +321,68 @@ if( !function_exists('latest_twitter_widget_css')){
 	}
 	add_action('wp_head', 'latest_twitter_widget_css');
 }
+/** Step 2 (from text above). */
+add_action( 'admin_menu', 'my_plugin_menu' );
 
+/** Step 1. */
+function my_plugin_menu() {
+	add_options_page( 'Latest tweet settings options', 'Latest tweet settings', 'manage_options', 'my-unique-identifier', 'my_plugin_options' );
+}
+
+/** Step 3. */
+function my_plugin_options() {
+	if ( !current_user_can( 'manage_options' ) )  {
+		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+	}
+		if(isset($_POST['frm_submit'])){
+			
+		if(!empty($_POST['oauthAcessToken'])) update_option('oauthAcessToken', $_POST['oauthAcessToken']);
+		if(!empty($_POST['oauthAcessTokenSecret'])) update_option('oauthAcessTokenSecret', $_POST['oauthAcessTokenSecret']);
+		if(!empty($_POST['ConsumerKey'])) update_option('ConsumerKey', $_POST['ConsumerKey']);
+		if(!empty($_POST['ConsumerKeySecret'])) update_option('ConsumerKeySecret', $_POST['ConsumerKeySecret']);
+?>
+<div id="message" class="updated fade"><p><strong>Option Saved</strong></p></div>
+<?php	
+	}
+	$option_value['oauthAcessToken'] = get_option('oauthAcessToken');
+	$option_value['oauthAcessTokenSecret'] = get_option('oauthAcessTokenSecret');
+	$option_value['ConsumerKey'] = get_option('ConsumerKey');
+	$option_value['ConsumerKeySecret'] = get_option('ConsumerKeySecret');
+?>
+
+	<div class="wrap">
+		<h2>OST Latest Tweets Settings</h2><br />
+		<!-- Administration panel form -->
+		<form method="post" action="<?php echo str_replace( '%7E', '~', $_SERVER['REQUEST_URI']); ?>">
+		<h3>General Settings</h3>
+		<table>
+        <tr><td width="200"><b>Oauth Access Token:</b></td>
+        <td><input type="text" name="oauthAcessToken" size="60" value="<?php echo $option_value['oauthAcessToken'];?>"/></td></tr>
+		<tr><td width="200"><b>Oauth Acess Token Secret:</b></td>
+        <td><input type="text" name="oauthAcessTokenSecret" size="60" value="<?php echo $option_value['oauthAcessTokenSecret'];?>"/></td></tr>
+		<tr><td width="200"><b>Consumer Key:</b></td>
+        <td><input type="text" name="ConsumerKey" size="60" value="<?php echo $option_value['ConsumerKey'];?>"/></td></tr>
+		<tr><td width="200"><b>Consumer Key Secret:</b></td>
+        <td><input type="text" name="ConsumerKeySecret" size="60" value="<?php echo $option_value['ConsumerKeySecret'];?>"/></td></tr>
+        </table><br />
+   		<table>
+		
+		<tr height="50"><td></td><td><input type="submit" name="frm_submit" value="Update Options"/></td></tr>
+		</table>
+		</form>
+		
+			<h3>Steps for getting above values:-</h3>
+			<table>
+				<tr><td><b>1.for getting these values create <a rel="nofollow" href="https://dev.twitter.com/">developer account</a> on twitter than  Create an <a rel="nofollow" href="http://dev.twitter.com/apps">application </a>on the Twitter developer site,creating an application is to give yourself (and Twitter) a set of keys. These are:
+							<br><br>
+				a.The consumer key <br>
+				b.The consumer secret <br>
+				c.The access token<br>
+				d.The access token secret<br></b></td></tr>
+				<tr><td>&nbsp;</td></tr>
+				<tr><td><b>2.After this create acess tokens to make successful requests, changes acess levels to  Read and Write, and make OAuth settings that gives you Oauth acess token and  Oauth acess token secret. Use these value to fill form mentioned in above step.</b></td></tr>
+		</table>
+	</div>
+<?php
+	}
 ?>

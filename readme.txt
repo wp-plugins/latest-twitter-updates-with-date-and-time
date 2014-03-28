@@ -25,9 +25,18 @@ who has their tweets set as public. Show up to 20 tweets. Include a link to your
 2. Decompress the file contents
 3. Upload the latest-twitter-updates folder to a Wordpress plugins directory (/wp-content/plugins)
 4. Activate the plugin from the Administration Dashboard
-5. Open the Widgets page under the Appearance section
-6. Drag the Latest Twitter Updates widget to the active sidebar
-7. Configure the widget options to suit your needs and click Save
+5. Open Latest Tweet Setting  under the Settings Section
+6. Add your twitter app Oauth acess token, Oauth acess token secret,Consumer key, Consumer key secret and click on update option button to Save these.
+(for getting these values create developer account on twitter than  Create an application on the Twitter developer site,creating an application is to give yourself (and Twitter) a set of keys. These are:
+
+    a.The consumer key
+    b.The consumer secret
+    c.The access token
+    d.The access token secret
+After this create acess tokens to make successful requests, changes acess levels to  Read and Write, and make OAuth settings that gives you Oauth acess token and  Oauth acess token secret. Use these value to fill form mentioned in above step.)
+7. Open the Widgets page under the Appearance section
+8. Drag the Latest Twitter Updates widget to the active sidebar
+9. Configure the widget options to suit your needs and click Save
 
 == Frequently Asked Questions ==
 
