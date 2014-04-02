@@ -4,22 +4,54 @@ Plugin Name: Latest twitter updates with date and time
 Plugin URI: http://www.opensourcetechnologies.com/
 Description: Creates a sidebar widget that displays the latest twitter updates for any user with date and time of tweet created.
 Author: opensourcetech
-Version: 1.1
+Version: 1.0
 Author URI: http://www.opensourcetechnologies.com/
 */
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 require_once('TwitterAPIExchange.php');
 
-
-
 class latest_twitter_widget extends WP_Widget {
+		
+		/**
+		 * PHP 5 Constructor
+		 */
+		function __construct() {
+			$name = dirname(plugin_basename(__FILE__));
+
+			//"Constants" setup
+			$this->pluginurl = WP_PLUGIN_URL . "/$name/";
+			$this->pluginpath = WP_PLUGIN_DIR . "/$name/";
+
+			//Actions
+			add_action('admin_menu', array(&$this, 'admin_menu_link'));
+			parent::WP_Widget( /* Base ID */'latest_twitter_widget', /* Name */'Latest twitter updates', array( 'description' => 'Displays your latest twitter.com updates' ) );
+
+		}
+		
+		
+	
+		/**
+		 * @desc Adds the options subpanel
+		 */
+		function admin_menu_link() {
+			add_options_page( 'Latest tweet settings options', 'Latest tweet settings', 'manage_options', 'latest_twitter_updates.php', 'my_plugin_options' );
+			add_filter('plugin_action_links_' . plugin_basename(__FILE__), array(&$this, 'filter_plugin_actions'), 10, 2 );
+		}
+
+		/**
+		 * @desc Adds the Settings link to the plugin activate/deactivate page
+		 */
+		function filter_plugin_actions($links, $file) {
+			$settings_link = '<a href="options-general.php?page=' . basename(__FILE__) . '">Settings</a>';
+			array_unshift($links, $settings_link); // before other links
+			return $links;
+		}
+
+		
+		
 
 
 
-	function latest_twitter_widget() {
-		// widget actual processes
-		parent::WP_Widget( /* Base ID */'latest_twitter_widget', /* Name */'Latest twitter updates', array( 'description' => 'Displays your latest twitter.com updates' ) );
-	}
 
 	function form($instance) {
 		// outputs the options form on admin
@@ -265,19 +297,7 @@ function twitter_time_ltw($a) {
 				//GET failed
 			return false;
 			}
-		/*$response = wp_remote_get( $response );
-		if( is_wp_error( $response ) || $response['response']['code'] != "200" ){
-			//GET failed
-			return false;
-		} else{
-			//save the body of the response in $fileName
-			$filePath = dirname(__FILE__) ."/". $fileName;
-			$fp = fopen( $filePath, "w");
-			fwrite( $fp, $response );
-			fclose( $fp );
-			//that worked out well
-			return $response;
-		}*/
+		
 	}
 
 	function file_missing_or_old( $fileName, $ageInHours ){
@@ -321,19 +341,16 @@ if( !function_exists('latest_twitter_widget_css')){
 	}
 	add_action('wp_head', 'latest_twitter_widget_css');
 }
-/** Step 2 (from text above). */
-add_action( 'admin_menu', 'my_plugin_menu' );
 
-/** Step 1. */
-function my_plugin_menu() {
-	add_options_page( 'Latest tweet settings options', 'Latest tweet settings', 'manage_options', 'my-unique-identifier', 'my_plugin_options' );
-}
-
-/** Step 3. */
 function my_plugin_options() {
 	if ( !current_user_can( 'manage_options' ) )  {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 	}
+		
+
+
+		
+		
 		if(isset($_POST['frm_submit'])){
 			
 		if(!empty($_POST['oauthAcessToken'])) update_option('oauthAcessToken', $_POST['oauthAcessToken']);
@@ -385,4 +402,7 @@ function my_plugin_options() {
 	</div>
 <?php
 	}
+
+
+
 ?>

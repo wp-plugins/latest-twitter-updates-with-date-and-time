@@ -5,3 +5,22 @@
 .latest-twitter-tweet-time{ font: 9pt/12pt arial; color: #999999; margin-bottom: 10px; }
 .twitter_link{color: #369;text-decoration: underline;outline: 0;font-weight: normal;}
 #latest-twitter-widget-icon2 {margin-left: 5px;}
+.widget_latest_twitter_widget{ background:#80bae2; padding:15px !important; color:#fff; }
+.widget_latest_twitter_widget a{ color:#fff !important; }
+.widget_latest_twitter_widget h3{ color:#fff !important; font-size:1.2em; }
+.latest-twitter-tweet:first-child{ border-top:none; padding-top:0px; }
+.latest-twitter-tweet {
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 15px;
+    margin-top: 10px;
+	padding-left: 22px;
+    padding-bottom: 5px;
+padding-top:12px;
+border-top:1px dotted #fff;
+background:url(http://www.eepybird.com/wp-content/themes/plainscape/_img/twitter-bird-dark-bgs.png) no-repeat left 12px;
+background-size:20px 20px;
+}
+
+.widget_latest_twitter_widget h3.widget-title{ margin:0px; }
