@@ -6,7 +6,7 @@ Author: Opensourcetechnologies
 Author URI: http://www.opensourcetechnologies.com/
 Stable tag: 1.0
 Requires at least: 3.0.0
-Tested up to: 3.9
+Tested up to: 4.2.2
 License: GPLv3 or later
 
 Display the latest updates for any twitter user in a widget. Automatically embeds links to @users, #hashtags and urls.
