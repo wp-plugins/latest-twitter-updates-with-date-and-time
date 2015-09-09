@@ -18,7 +18,7 @@ who has their tweets set as public. Show up to 20 tweets. Include a link to your
 <p>Include date and time of tweets below each tweet. Updates automatically and looks great in any sidebar or widget area.</p>
 <p>CSS friendly! All HTML includes element id attributes, and a default stylesheet.css is included.</p>
 <p>If you want custom changes or styles you can contact us at info@opensourcetechnologies.com</p>
-<p>For video tutorial : <a href="https://www.youtube.com/watch?v=yVgAD24eFfM&feature=youtu.be">Click here</a></p>
+<p>For video tutorial : <a href="https://www.youtube.com/watch?v=N0W0FRrDI6Y&feature=youtu.be">Click here</a></p>
 
 == Installation ==
 
